@@ -11,6 +11,7 @@ public abstract class AbstractClient extends Thread implements Client {
 	private InputStream input;
 	@SuppressWarnings("unused")
 	private OutputStream output;
+	private int status = -1;
 	
 	public AbstractClient(Socket socket) {
 		this.socket = socket;
@@ -22,6 +23,14 @@ public abstract class AbstractClient extends Thread implements Client {
 	
 	public OutputStream getOutput() throws IOException {
 		return socket.getOutputStream();
+	}
+	
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	
+	public int getStatus() {
+		return status;
 	}
 	
 	abstract public void run();

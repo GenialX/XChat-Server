@@ -12,24 +12,14 @@ import java.net.Socket;
  * @author GenialX
  */
 public class NotLoggedClient extends AbstractClient {
-	private int status = this.STATUS_NOT_LOGGED;
 
 	public NotLoggedClient(Socket socket) {
 		super(socket);
+		setStatus(ClientStatusFSM.CLIENT_STATUS_LEVEL_0_NOT_LOGGED);
 	}
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public int getStatus() {
-		return status;
-	}
-
-	@Override
-	public void setStatus(int status) {
-		this.status = status;
 	}
 }

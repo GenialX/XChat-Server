@@ -21,6 +21,8 @@ import com.google.gson.JsonParser;
 public class ClientStatusFSM {
     // Client FSM
     public final static String CLIENT_STATUS_FSM = "{\"status\":0, \"desc\":\"未登录\",\"parent\":-1, \"next\":[{\"status\":16777216, \"desc\":\"已登录\", \"parent\":0, \"next\":[{\"status\": 33554432, \"desc\":\"登录失败\",\"parent\":0, \"next\":[]},{\"status\":33554433, \"desc\":\"断开\",\"parent\":0, \"next\":[]}]},{\"status\": 16777217, \"desc\":\"登录失败\",\"parent\":0, \"next\":[]},{\"status\": 16777218, \"desc\":\"断开\",\"parent\":0, \"next\":[]}]}";
+    // Unknown status
+    public final static int CLIENT_STATUS_LEVEL_UNKNOWN = -1;
     // For Level 0
 	public final static int CLIENT_STATUS_LEVEL_0_NOT_LOGGED = 0;
 	// For Level 1
@@ -125,5 +127,9 @@ public class ClientStatusFSM {
 
 	private static class LazyHolder {
 		private final static ClientStatusFSM instance = new ClientStatusFSM();
+	}
+	
+	public void transfer(Client client) {
+		
 	}
 }

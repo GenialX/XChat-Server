@@ -11,9 +11,7 @@ import com.ihuxu.xchatserver.conf.ClientConfig;
  * 
  * 功能：
  * 1. 提供“未登录客户端”线程的增加与删除操作
- * 2. 定时监控“客户端”的状态，如果状态非“未登录”状态，则将其进行相应处理
- * 	2.1 如果状态是已登录，则将其从当前“未登录客户端”的线程池移除；并将其增加到“已登录客户端”的线程池
- *  2.2 如果状态是断开连接，则将其从当前的“未登录客户端”的线程池移除；并销毁当前“客户端”线程
+ * 2. 定时监控“客户端”的状态，如果状态非“未登录”状态，则将其移除，并添加到客户端状态机进行处理
  * 
  * @author GenialX
  */
@@ -34,14 +32,33 @@ public class NotLoggedClientPool extends Thread {
     }
     
     @SuppressWarnings("unused")
+    /**
+     * 检索并删除此队列的头，如有必要，等待元素可用.
+     * 
+     * @return
+     * @throws InterruptedException
+     */
 	private NotLoggedClient take() throws InterruptedException {
         return clients.take();
     }
     
+    /**
+     * 检索但不删除此队列的头，如果此队列为空，则返回 null .
+     * 
+     * @return
+     */
     private NotLoggedClient peek() {
     	return clients.peek();
     }
     
+    /**
+     * 如果可以在不超过队列的容量的情况下立即将其指定的元素插入到队列的尾部，
+     * 如果队列已满，则返回 true和 false .
+     * 
+     * @param client
+     * @return
+     * @throws InterruptedException
+     */
     public boolean offer(NotLoggedClient client) throws InterruptedException {
         return clients.offer(client);
     }
@@ -50,12 +67,18 @@ public class NotLoggedClientPool extends Thread {
         NotLoggedClient client;
         while (true) {
             client = peek();
+            // there is not client in pool
             if (client == null) {
             	try {
 					NotLoggedClientPool.sleep(ClientConfig.CLIENTS_POOL_INTERVAL);
+					continue;
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+            } 
+            // there is client in pool
+            if (client.getStatus() != ClientStatusFSM.CLIENT_STATUS_LEVEL_0_NOT_LOGGED) {
+            	ClientStatusFSM.getInstance().transfer(client);
             }
         }
     }
