@@ -31,10 +31,10 @@ public class Server {
 			        System.out.println("the recieved the serverSocket.");
 			        NotLoggedClient client = new NotLoggedClient(socket);
 			        try {
-			            NotLoggedClientPool.getInstance().offer(client);
+			            NotLoggedClientPool.getInstance().add(client);
 			        } catch (Exception e) {
 			            // Server is full, try later.
-			            System.err.println("Server is full, try later.");
+			            e.printStackTrace();
 			            client = null;
 			        }
 			    } catch (Exception e) {

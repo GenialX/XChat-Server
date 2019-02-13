@@ -1,13 +1,15 @@
 package com.ihuxu.xchatserver.client;
 
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ihuxu.xchatserver.conf.ClientConfig;
 
 /**
  * ”未登录客户端“的线程池.
  * 
- * 单利模式（内部类方式 线程安全）
+ * 单利模式（内部静态类方式 线程安全）
  * 
  * 功能：
  * 1. 提供“未登录客户端”线程的增加与删除操作
@@ -19,11 +21,6 @@ public class NotLoggedClientPool extends Thread {
     private static class LazyHolder {
         private final static NotLoggedClientPool instance = new NotLoggedClientPool();
     }
-    
-    /**
-     * 未登录的客户端实例线程安全队列.
-     */
-    private static LinkedBlockingQueue<NotLoggedClient> clients = new LinkedBlockingQueue<NotLoggedClient>(ClientConfig.CLIENTS_QUEUE_CAPACITY);
 
     private NotLoggedClientPool() {}
 
@@ -31,55 +28,62 @@ public class NotLoggedClientPool extends Thread {
         return LazyHolder.instance;
     }
     
-    @SuppressWarnings("unused")
     /**
-     * 检索并删除此队列的头，如有必要，等待元素可用.
-     * 
-     * @return
-     * @throws InterruptedException
+     * 未登录的客户端容器.
      */
-	private NotLoggedClient take() throws InterruptedException {
-        return clients.take();
-    }
+    private ConcurrentSkipListSet<NotLoggedClient> clients = new ConcurrentSkipListSet<NotLoggedClient>(new NotLoggedClientComparator());
     
     /**
-     * 检索但不删除此队列的头，如果此队列为空，则返回 null .
-     * 
-     * @return
+     * 原子性计数器.
      */
-    private NotLoggedClient peek() {
-    	return clients.peek();
-    }
+    private AtomicInteger clientCount = new AtomicInteger();
     
     /**
-     * 如果可以在不超过队列的容量的情况下立即将其指定的元素插入到队列的尾部，
-     * 如果队列已满，则返回 true和 false .
+     * 未登录客户端阈值.
+     */
+    private final int clientThreshold = 2^4;
+    
+    /**
+     * 增加未登录客户端.
+     * 
+     * 确保当前的未登录客户端容器不会超过指定的阈值。
      * 
      * @param client
-     * @return
-     * @throws InterruptedException
+     * @return boolean
+     * @throws Exception Throw exception while Server is Full.
      */
-    public boolean offer(NotLoggedClient client) throws InterruptedException {
-        return clients.offer(client);
+    public boolean add(NotLoggedClient client) throws Exception {
+    	if (clientCount.incrementAndGet() > clientThreshold) {
+    		clientCount.decrementAndGet();
+    		throw new Exception("Server is full, try later.");
+    	} else {
+    		return clients.add(client);
+    	}
+    }
+    
+    /**
+     * 删除指定客户端.
+     * 
+     * @param client
+     * @return boolean
+     */
+    public boolean remove(NotLoggedClient client) {
+    	return clients.remove(client);
     }
     
     public void run() {
         NotLoggedClient client;
+        Iterator<NotLoggedClient> it = clients.iterator();
         while (true) {
-            client = peek();
-            // there is not client in pool
-            if (client == null) {
-            	try {
-					NotLoggedClientPool.sleep(ClientConfig.CLIENTS_POOL_INTERVAL);
-					continue;
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-            } 
-            // there is client in pool
-            if (client.getStatus() != ClientStatusFSM.CLIENT_STATUS_LEVEL_0_NOT_LOGGED) {
-            	ClientStatusFSM.getInstance().transfer(client);
-            }
+        	// Traverse the clients
+        	while (it.hasNext()) {
+        		client = it.next();
+        		if (client.getStatus() != ClientStatusFSM.CLIENT_STATUS_LEVEL_0_NOT_LOGGED) {
+        			ClientStatusFSM.getInstance().transfer(client);
+        			remove(client);
+        			clientCount.decrementAndGet();
+        		}
+        	}
         }
     }
 }

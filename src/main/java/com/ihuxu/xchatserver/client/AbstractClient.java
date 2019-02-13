@@ -12,6 +12,8 @@ public abstract class AbstractClient extends Thread implements Client {
 	@SuppressWarnings("unused")
 	private OutputStream output;
 	private int status = -1;
+	@SuppressWarnings("unused")
+	private long connectTime = System.currentTimeMillis();
 	
 	public AbstractClient(Socket socket) {
 		this.socket = socket;
@@ -31,6 +33,10 @@ public abstract class AbstractClient extends Thread implements Client {
 	
 	public int getStatus() {
 		return status;
+	}
+	
+	public long getConnectTime() {
+		return connectTime;
 	}
 	
 	abstract public void run();
