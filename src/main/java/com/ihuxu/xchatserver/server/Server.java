@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.apache.log4j.Logger;
+
 import com.ihuxu.xchatserver.client.NotLoggedClient;
 import com.ihuxu.xchatserver.client.NotLoggedClientPool;
 
@@ -14,8 +16,8 @@ public class Server {
 	public Server() {}
 
 	public void start() {
-		System.out.println("Server starting...");
-		/** crontab **/
+		Logger.getRootLogger().info("Server started...");
+		/** CRONTAB **/
 		ServerCrontab.checkClientSocket();
 
 		/** listening **/
@@ -28,13 +30,13 @@ public class Server {
 			        Socket socket = serverSocket.accept();
 
 			        /** client thread **/
-			        System.out.println("the recieved the serverSocket.");
+			        Logger.getRootLogger().info("Did recieve one new socket");
 			        NotLoggedClient client = new NotLoggedClient(socket);
 			        try {
 			            NotLoggedClientPool.getInstance().add(client);
 			        } catch (Exception e) {
 			            // Server is full, try later.
-			            e.printStackTrace();
+			            Logger.getRootLogger().warn(e.getStackTrace());
 			            client = null;
 			        }
 			    } catch (Exception e) {

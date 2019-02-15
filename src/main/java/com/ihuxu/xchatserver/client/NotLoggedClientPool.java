@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
+
 import com.ihuxu.xchatserver.conf.ClientConfig;
 
 /**
@@ -41,7 +43,7 @@ public class NotLoggedClientPool extends Thread {
     /**
      * 未登录客户端阈值.
      */
-    private final int clientThreshold = 2^4;
+    private final int clientThreshold = ClientConfig.NOT_LOGGED_CLIENT_POOL_SET_CAPACITY;
     
     /**
      * 增加未登录客户端.
@@ -68,22 +70,28 @@ public class NotLoggedClientPool extends Thread {
      * @return boolean
      */
     public boolean remove(NotLoggedClient client) {
-    	return clients.remove(client);
+        boolean result = clients.remove(client);
+        clientCount.decrementAndGet();
+        return result;
     }
     
     public void run() {
         NotLoggedClient client;
         Iterator<NotLoggedClient> it = clients.iterator();
         while (true) {
-        	// Traverse the clients
-        	while (it.hasNext()) {
-        		client = it.next();
-        		if (client.getStatus() != ClientStatusFSM.CLIENT_STATUS_LEVEL_0_NOT_LOGGED) {
-        			ClientStatusFSM.getInstance().transfer(client);
-        			remove(client);
-        			clientCount.decrementAndGet();
-        		}
-        	}
+            // Traverse the clients
+            while (it.hasNext()) {
+                client = it.next();
+                if (client.getStatus() != ClientStatusFSM.CLIENT_STATUS_LEVEL_0_NOT_LOGGED) {
+                    ClientStatusFSM.getInstance().transfer(client);
+                    remove(client);
+                }
+            }
+            try {
+                Thread.sleep(ClientConfig.NOT_LOGGED_CLIENT_POOL_INTERVAL);
+            } catch (InterruptedException e) {
+                Logger.getRootLogger().warn(e.getStackTrace());
+            }
         }
     }
 }
