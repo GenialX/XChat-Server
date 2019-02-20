@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import com.ihuxu.xchatserver.common.model.MessagePackage;
+import com.ihuxu.xchatserver.model.MessagePackage;
 
 public class ClientThreadManager {
 	

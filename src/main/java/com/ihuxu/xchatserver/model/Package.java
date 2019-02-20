@@ -1,4 +1,4 @@
-package com.ihuxu.xchatserver.common.model;
+package com.ihuxu.xchatserver.model;
 
 public interface Package {
 	

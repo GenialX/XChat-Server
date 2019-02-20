@@ -3,7 +3,7 @@ package com.ihuxu.xchatserver.server;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.ihuxu.xchatserver.common.model.MessagePackage;
+import com.ihuxu.xchatserver.model.MessagePackage;
 
 public class MessagePackageManager {
 	private static MyQueue<MessagePackage> chatTextMessagePackageQueue = new MyQueue<MessagePackage>();

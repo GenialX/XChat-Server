@@ -12,9 +12,9 @@ public abstract class AbstractClient extends Thread implements Client {
 	@SuppressWarnings("unused")
 	private OutputStream output;
 	private int status = -1;
-	@SuppressWarnings("unused")
 	private long connectTime = System.currentTimeMillis();
-	
+    @SuppressWarnings("unused")
+    private Byte[] message = null;
 	public AbstractClient(Socket socket) {
 		this.socket = socket;
 	}
@@ -39,5 +39,9 @@ public abstract class AbstractClient extends Thread implements Client {
 		return connectTime;
 	}
 	
+	public Byte[] getNextMessage() {
+	    return null;
+	}
+
 	abstract public void run();
 }

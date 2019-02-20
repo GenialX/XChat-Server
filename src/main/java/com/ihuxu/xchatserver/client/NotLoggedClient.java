@@ -2,6 +2,10 @@ package com.ihuxu.xchatserver.client;
 
 import java.net.Socket;
 
+import org.apache.log4j.Logger;
+
+import com.ihuxu.xchatserver.conf.ClientConfig;
+
 /**
  * 客户端线程.
  * 
@@ -20,6 +24,16 @@ public class NotLoggedClient extends AbstractClient {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+	    while (true) {
+	        byte[] message = getNextMessage();
+	        if (message == null) {
+	            try {
+                    Thread.sleep(ClientConfig.NOT_LOGGED_CLIENT_INTERVAL);
+                } catch (InterruptedException e) {
+                    Logger.getRootLogger().warn(e.getStackTrace());
+                }
+	            continue;
+	        }
+	    }
 	}
 }

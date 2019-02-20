@@ -74,7 +74,7 @@ public class NotLoggedClientPool extends Thread {
         clientCount.decrementAndGet();
         return result;
     }
-    
+
     public void run() {
         NotLoggedClient client;
         Iterator<NotLoggedClient> it = clients.iterator();

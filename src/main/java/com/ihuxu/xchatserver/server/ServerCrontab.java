@@ -4,7 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.ihuxu.xchatserver.common.model.MessagePackage;
+import com.ihuxu.xchatserver.model.MessagePackage;
 
 public class ServerCrontab {
 

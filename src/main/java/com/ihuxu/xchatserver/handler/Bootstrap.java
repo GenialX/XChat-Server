@@ -1,4 +1,4 @@
-package com.ihuxu.xchatserver.controller;
+package com.ihuxu.xchatserver.handler;
 
 import com.ihuxu.xchatserver.server.Server;
 

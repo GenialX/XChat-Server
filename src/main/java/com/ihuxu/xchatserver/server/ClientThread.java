@@ -5,7 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import com.ihuxu.xchatserver.common.model.MessagePackage;
+import com.ihuxu.xchatserver.model.MessagePackage;
 
 public class ClientThread extends Thread{
 	

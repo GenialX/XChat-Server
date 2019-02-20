@@ -33,7 +33,11 @@ public class Server {
 			        Logger.getRootLogger().info("Did recieve one new socket");
 			        NotLoggedClient client = new NotLoggedClient(socket);
 			        try {
-			            NotLoggedClientPool.getInstance().add(client);
+			            if (NotLoggedClientPool.getInstance().add(client)) {
+			                client.start();
+			            } else {
+			                Logger.getRootLogger().warn("The client has been added.");
+			            }
 			        } catch (Exception e) {
 			            // Server is full, try later.
 			            Logger.getRootLogger().warn(e.getStackTrace());
